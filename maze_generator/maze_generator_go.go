@@ -9,6 +9,10 @@ import (
 	"os"
 )
 
+/*
+This program will create a maze and save it as a file
+*/
+
 func main() {
 	// labyrinthe(25, 35)
 }

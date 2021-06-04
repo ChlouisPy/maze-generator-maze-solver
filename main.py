@@ -2,6 +2,7 @@
 Maze generator - Maze solver
 
 Main window to configure the generation of the labyrinth and configure the pathfinder
+made with PyQT5 Designer
 
 GitHub : ChlouisPy
 Twitter : @Chlouis_Py

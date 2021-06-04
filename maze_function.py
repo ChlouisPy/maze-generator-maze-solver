@@ -1,4 +1,5 @@
 """
+All function for maze generation and maze solving
 Create labyrinths (necessarily possible to solve) and uses Dijkstra's algorithm to solve it
 """
 

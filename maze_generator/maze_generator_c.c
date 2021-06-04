@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 /* 
-A maze generator in C 
+A maze generator in C (there is no exporting function)
 */
 
 void create_maze(int x_size, int y_size, int seed);

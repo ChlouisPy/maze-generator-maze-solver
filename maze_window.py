@@ -1,5 +1,5 @@
 """
-Create the window that show the maze
+Create the window that show the maze and the pathfinder in action
 """
 
 import matplotlib.pyplot as plt
