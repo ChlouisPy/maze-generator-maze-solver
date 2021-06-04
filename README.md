@@ -34,10 +34,12 @@ You can change some parameters like the size of the maze or visual effects
 ## How it works :
 #### - Maze generation :
 To generate a maze, the program will create a matrix of (x*2 + 1) by (y * 2 + 1) it will then place, x * y point that do not touch each other and all have a different value. like this : 
+
 ![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/8.png?raw=true)
 
 *Black is 0 and white is different number per case*
 To create the labyrinth, the program will break randomly some walls and put the value of one of the case to the whole space. like this : 
+
 ![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/9.png?raw=true)
 
 While there is more than two different value in the maze, the program continue to break random walls 
