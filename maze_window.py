@@ -1,7 +1,6 @@
 """
 Create the window that show the maze and the pathfinder in action
 """
-
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib
@@ -9,7 +8,8 @@ import matplotlib
 import numpy as np
 from copy import deepcopy
 from math import floor
-import time
+import pickle
+import os
 
 from maze_function import Maze
 from maze_function import PathFinder
@@ -42,7 +42,7 @@ def colormap(max_path: int) -> (matplotlib.colors.ListedColormap, matplotlib.col
     :return: color_map and norm
     """
     # get maplotlib base colormap
-    color_map = plt.cm.get_cmap("plasma_r", max_path)
+    color_map = plt.cm.get_cmap(BASE_COLOR_MAP, max_path)
 
     # create map
     maps = deepcopy(FULL_MAP)
@@ -93,9 +93,14 @@ class MazeWindow:
         self.PATH_SEARCH: bool = True
 
         # other
-
         # if you can explore
-        self.explore = False
+        self.explore: bool = False
+
+        # for best path animation
+        self.animation_finished: bool = False
+
+        # step of exploration
+        self.step = 2
 
     def main(self,
              maze_size_x: int,
@@ -150,51 +155,111 @@ class MazeWindow:
 
     def animation_function(self, i) -> int:
         """
-        Important function that will run animation of pathfinding
+        Important function that will run animation of pathfinding (it is very dirty)
         :param i: frame
         :return: i
         """
         # instant explore
-        if self.explore and self.INSTANT_PATH:
-
+        # this condition if also called when Instant path ent path search are false (for a fastest exploration)
+        if (self.explore and self.INSTANT_PATH) or (self.explore and not self.INSTANT_PATH and not self.PATH_SEARCH):
+            # set exploration to false to prevent second call of the function
             self.explore = False
 
+            # while the pathfinder did not find the arrival
             while True:
-                # step by step explortion
-                new_maze = next(self.G)
+                # step by step exploration
+                new_maze = next(self.solver)
 
-                # stop explore if maze == True
+                # if pathfiner find arrival
                 if new_maze == True:
+                    # stop while loop
                     break
+                # add 1 to the exploration step
                 self.step += 1
 
-            # show the final maze
+            # show the final maze with the exploration
+            # create the color map
             c, n = colormap(self.step + 2)
-            # show the final maze with path search
-            if self.PATH_SEARCH:
-                self.mat.set_data(next(self.G))
-                self.mat.set_cmap(c)
-                self.mat.set_norm(n)
-            # show the final maze without path search
+            # get the final maze with the full exploration
+            final_maze = next(self.solver)
+
+            # set the maze final exploration in the gui
+            self.mat.set_data(self.explore_enable(final_maze))
+            self.mat.set_cmap(c)
+            self.mat.set_norm(n)
+
+            # show the best path
+            if self.BEST_PATH and self.PATH_SEARCH:
+                # create the generator that will return step by step the best path
+                best_path = self.PATH_FINDER.show_path(final_maze,
+                                                       self.arrival_point_x,
+                                                       self.arrival_point_y,
+                                                       self.step)
+                # while the best path if not printed
+                while True:
+                    # step by step best path
+                    new_maze = next(best_path)
+
+                    # stop explore if maze == True,  when best path is fully printed
+                    if new_maze == True:
+                        break
+                    else:
+
+                        self.mat.set_data(self.explore_enable(new_maze))
+                        plt.savefig(f"images/{self.step}.png", dpi=100)
+            #  Instant path ent path search are false (for a fastest exploration)
             else:
-                self.mat.set_data(self.maze)
+                # stop explore
+                self.explore = False
+                # set variable to start best path visualisation
+                self.animation_finished = True
+
+                self.best_path = self.PATH_FINDER.show_path(final_maze,
+                                                            self.arrival_point_x,
+                                                            self.arrival_point_y,
+                                                            self.step)
 
         # for animation during exploration
-        elif self.explore and not self.INSTANT_PATH:
+        elif self.explore and not self.INSTANT_PATH and self.PATH_SEARCH:
+            # get exploration step by step
+            new_maze = next(self.solver)
 
-            new_maze = next(self.G)
-
+            # when the pathfinder find the arrival
             if new_maze == True:
+                # stop explore
                 self.explore = False
+                # set variable to start best path visualisation
+                self.animation_finished = True
+                # get the final exploration maze
+                full_explored_maze = next(self.solver)
+                # init the best path visualisation
+                self.best_path = self.PATH_FINDER.show_path(full_explored_maze,
+                                                            self.arrival_point_x,
+                                                            self.arrival_point_y,
+                                                            self.step)
+            # if exploration is not finished
             else:
-
+                # show in the gui the advancement of the exploration
                 c, n = colormap(self.step + 2)
 
-                self.mat.set_data(new_maze)
+                self.mat.set_data(self.explore_enable(new_maze))
+
                 self.mat.set_cmap(c)
                 self.mat.set_norm(n)
-
+            # add on step
             self.step += 1
+
+        # animation that show the best path after exploration
+        elif not self.explore and not self.INSTANT_PATH and self.animation_finished:
+            # get steps for best path visualisation
+            best_path = next(self.best_path)
+            # if it is the end of the best path visualisation
+            if best_path == True:
+                # stop animation
+                self.animation_finished = False
+            else:
+                # else show advancement
+                self.mat.set_data(self.explore_enable(best_path))
 
         return i
 
@@ -244,11 +309,40 @@ class MazeWindow:
             self.explore = True
 
             # create the pathfinder
-            self.G = self.PATH_FINDER.solver(self.maze, self.starting_point_x, self.starting_point_y)
-            #
+            self.solver = self.PATH_FINDER.solver(self.maze, self.starting_point_x, self.starting_point_y)
+            # reset step
             self.step = 2
+
+    def explore_enable(self, maze):
+        """
+        this function will remove every exploration color if the option is enable
+        :param maze: a exploration maze
+        :return: maze without color is the option is enable
+        """
+        if self.PATH_SEARCH:
+            return maze
+        else:
+            no_exploration = np.array(maze)
+            no_exploration[no_exploration > STARTING] = PATH
+            return no_exploration
 
 
 if __name__ == '__main__':
-    a = MazeWindow()
-    a.main(25, 25, 25, False, True, True)
+    """a = MazeWindow()
+    a.main(20, 10, 25, True, True, True)"""
+
+    # try open pickles conf
+    if os.path.exists('conf.pkl'):
+        # open the pickles configuration
+        with open('conf.pkl', 'rb') as f:
+            conf = pickle.load(f)
+            f.close()
+
+        os.remove("conf.pkl")
+    else:
+        conf = (25, 25, 25, False, True, True)
+
+    M = MazeWindow()
+    M.main(
+        conf[0], conf[1], conf[2], conf[3], conf[4], conf[5]
+    )

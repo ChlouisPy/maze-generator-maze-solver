@@ -54,9 +54,9 @@ class Maze:
         :return: None
         """
         # time at the start of the creation of the maze
-        t = time.time()
+        t: float = time.time()
 
-        # generate the maze
+        # generate the maze with go program
         self.lib.labyrinthe(length, height, seed)
 
         # print time at the end of the creation of the maze
@@ -69,18 +69,25 @@ class PathFinder:
     uses Dijkstra's algorithm to solve the maze
     """
 
-    def solver(self, base_maze, depart_x, depart_y):
+    @staticmethod
+    def solver(
+            base_maze,
+            starting_x: int,
+            starting_y: int):
         """
         This generators will return each step of the path finding search
+        :param base_maze: the maze to explore
+        :param starting_x: coordinate in x of the starting point of the maze
+        :param starting_y: coordinate in y of the starting point iof the maze
         :return: each step in maze search
         """
         # copy of the maze
         maze = deepcopy(base_maze)
 
-        last_x: list = [depart_x]
-        last_y: list = [depart_y]
+        last_x: list = [starting_x]
+        last_y: list = [starting_y]
 
-        is_finished = False
+        is_finished: bool = False
 
         while not is_finished:
 
@@ -91,7 +98,7 @@ class PathFinder:
             for i, (x, y) in enumerate(zip(last_x, last_y)):
 
                 # value of the case
-                value_case = int(maze[y][x])
+                value_case: int = maze[y][x]
 
                 # check each of the 4 possible move, check if it can explore and check if it is the arival
 
@@ -145,20 +152,50 @@ class PathFinder:
             # return maze with advancement of one case
             yield maze
 
+    @staticmethod
+    def show_path(
+            final_maze,
+            arrival_x: int,
+            arrival_y: int,
+            max_step: int):
+        """
+        This function will return step by step how to solve the solved maze given in parameter
+        :param final_maze: the maze with the distance of all point
+        :param arrival_x: the coordinate in x of the arrival of the maze
+        :param arrival_y: the coordinate in y of the arrival of the maze
+        :param max_step: the value of the maximum step that link the arrival point
+        :return: maze step by step to solve them
+        """
+        # create the maze with the solution
+        path_maze = deepcopy(final_maze)
 
+        coordinate_x: int = arrival_x
+        coordinate_y: int = arrival_y
 
-if __name__ == '__main__':
+        for i in range(max_step, STARTING, -1):
+            # check each of the 4 side of exploration
 
-    m = Maze()
-    m.generate(5, 5, 5)
-    b = m.load_maze()
-    # set arrival
-    b[-2][-2] = ARRIVAL
-    b[1][1] = STARTING
-    #
-    p = PathFinder()
-    g = p.solver(b, 1, 1, -2, -2)
-    while True:
-        print(np.array(next(g)))
-        print("=================================")
-        time.sleep(1)
+            # top
+            if path_maze[coordinate_y + 1][coordinate_x] == i:
+                coordinate_y += 1
+            # bottom
+
+            elif path_maze[coordinate_y - 1][coordinate_x] == i:
+                coordinate_y -= 1
+
+            # left
+            elif path_maze[coordinate_y][coordinate_x + 1] == i:
+                coordinate_x += 1
+
+            elif path_maze[coordinate_y][coordinate_x - 1] == i:
+                coordinate_x -= 1
+
+            # set pathfinder color to the actual coordinate
+            path_maze[coordinate_y][coordinate_x] = PATHFINDING
+
+            yield path_maze
+
+        # yield that the path finding is ended
+        yield True
+        # return final path
+        yield path_maze

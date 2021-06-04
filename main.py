@@ -10,6 +10,8 @@ Twitter : @Chlouis_Py
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import random
+import pickle
+import os
 
 
 class StartGenerate:
@@ -156,7 +158,7 @@ class StartGenerate:
         :return: None
         """
         _translate = QtCore.QCoreApplication.translate
-        START_GENERATE.setWindowTitle(_translate("START_GENERATE", "Maze generator - Maze solver configuratio"))
+        START_GENERATE.setWindowTitle(_translate("START_GENERATE", "Maze generator - Maze solver configuration"))
         self.label.setText(_translate("START_GENERATE", "Maze generator - Maze Solver"))
         self.label_2.setText(_translate("START_GENERATE", "Maze size in x :"))
         self.label_3.setText(_translate("START_GENERATE", "Maze size in y :"))
@@ -173,12 +175,38 @@ class StartGenerate:
         :return None
         """
         # get the configuration for maze
-        print(self.INSTANT_PATH.isChecked())
-        print(self.BEST_PATH.isChecked())
-        print(self.PATH_SEARCH.isChecked())
-        print(self.MAZE_SIZE_X.value())
-        print(self.MAZE_SIZE_Y.value())
-        print(self.MAZE_SEED.value())
+
+        maze_size_x = self.MAZE_SIZE_X.value()
+        maze_size_y = self.MAZE_SIZE_Y.value()
+        seed = self.MAZE_SEED.value()
+        instant_path = self.INSTANT_PATH.isChecked()
+        best_path = self.BEST_PATH.isChecked()
+        path_search = self.PATH_SEARCH.isChecked()
+
+        START_GENERATE.close()
+
+        # due to a conflict between pyqt5 and matplotlib i must write in a file the argument
+        # start a new python for the maze window that will get the information for the configuration
+        # of the maze
+
+        conf: tuple = (maze_size_x,
+                       maze_size_y,
+                       seed,
+                       instant_path,
+                       best_path,
+                       path_search)
+
+        with open("conf.pkl", "wb") as f:
+            pickle.dump(conf, f, pickle.HIGHEST_PROTOCOL)
+            f.close()
+
+        os_name = os.name
+        if os_name == "nt":
+            os.system("start python maze_window.py")
+        else:
+            os.system("python3 maze_window.py")
+
+        sys.exit(app.exec_())
 
 
 if __name__ == "__main__":
