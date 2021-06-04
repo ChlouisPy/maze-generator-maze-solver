@@ -53,20 +53,24 @@ While there is more than two different value in the maze, the program continue t
 Some examples of maze solving you can do with this program :
 
 ![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/5.gif?raw=true)
+<br>
 *Maze: 15x15 ; seed: 25 ; instant path: False ; best path: True ; path search: True ; cmap: plasma_r*
 <br>
 
 ![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/6.gif?raw=true)
+<br>
 *Maze: 50x50 ; seed: 42 ; instant path: False ; best path: True ; path search: True ; cmap: winter_r*
 <br>
 
-![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/6.gif?raw=true)
+![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/7.gif?raw=true)
+<br>
 *Maze: 25x25 ; seed: 42 ; instant path: False ; best path: True ; path search: False*
 <br>
 
 ![alt text](https://github.com/ChlouisPy/maze-generator-maze-solver/blob/main/images/10.png?raw=true)
+<br>
 *Maze: 1000x1000 ; seed: 1000 ; instant path: True ; best path: False ; path search: True : cmap: summer_r*
-*/!\ it takes more than 15 minutes to generate a 1000x1000 maze*
+*/!\ it takes more than 20 minutes to generate a 1000x1000 maze*
 <br>
 
 ### Issue :
