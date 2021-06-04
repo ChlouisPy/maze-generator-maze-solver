@@ -206,7 +206,7 @@ class MazeWindow:
                     else:
 
                         self.mat.set_data(self.explore_enable(new_maze))
-                        plt.savefig(f"images/{self.step}.png", dpi=100)
+
             #  Instant path ent path search are false (for a fastest exploration)
             else:
                 # stop explore
