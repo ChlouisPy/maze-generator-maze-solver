@@ -1,0 +1,1 @@
+gcc -Wl,--stack,16777216 -o file.exe main.c
