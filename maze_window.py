@@ -154,31 +154,47 @@ class MazeWindow:
         :param i: frame
         :return: i
         """
+        # instant explore
+        if self.explore and self.INSTANT_PATH:
 
-        if self.explore:
-            print("explore")
             self.explore = False
-            tour = 2
-            try:
-                del g
-            except:
-                print("pas encore")
-            g = self.PATH_FINDER.solver(self.maze, self.starting_point_x, self.starting_point_y)
 
             while True:
+                # step by step explortion
+                new_maze = next(self.G)
 
-                new_maze = next(g)
-
-                # stop explore
+                # stop explore if maze == True
                 if new_maze == True:
                     break
-                c, n = colormap(tour + 2)
+                self.step += 1
+
+            # show the final maze
+            c, n = colormap(self.step + 2)
+            # show the final maze with path search
+            if self.PATH_SEARCH:
+                self.mat.set_data(next(self.G))
+                self.mat.set_cmap(c)
+                self.mat.set_norm(n)
+            # show the final maze without path search
+            else:
+                self.mat.set_data(self.maze)
+
+        # for animation during exploration
+        elif self.explore and not self.INSTANT_PATH:
+
+            new_maze = next(self.G)
+
+            if new_maze == True:
+                self.explore = False
+            else:
+
+                c, n = colormap(self.step + 2)
 
                 self.mat.set_data(new_maze)
                 self.mat.set_cmap(c)
                 self.mat.set_norm(n)
 
-                tour += 1
+            self.step += 1
 
         return i
 
@@ -226,6 +242,11 @@ class MazeWindow:
             # self.mat.set_norm()
             # now we can explore because we set the arrival and starting points
             self.explore = True
+
+            # create the pathfinder
+            self.G = self.PATH_FINDER.solver(self.maze, self.starting_point_x, self.starting_point_y)
+            #
+            self.step = 2
 
 
 if __name__ == '__main__':
