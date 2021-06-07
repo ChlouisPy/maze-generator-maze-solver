@@ -32,12 +32,7 @@ ARRIVAL_COLOR: tuple = (0.0, 0.0, 1.0)  # 2 is for arrival
 # color map as array
 FULL_MAP: list = [PATHFINDING_COLOR, STARTING_COLOR, PATH_COLOR, WALL_COLOR, ARRIVAL_COLOR]
 # color for value
-FULL_BOUNDS = (np.array([PATHFINDING - 1,
-                         STARTING - 1,
-                         ARRIVAL - 1,
-                         WALL - 1,
-                         PATH - 1,
-                         PATH], dtype=np.float) + PAD).tolist()
+FULL_BOUNDS = (np.array([-3, -2, -1, 0, 1, 2], dtype=np.float) + PAD).tolist()
 
 
 def colormap(max_path: int) -> (matplotlib.colors.ListedColormap, matplotlib.colors.BoundaryNorm):
