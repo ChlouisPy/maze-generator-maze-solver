@@ -16,7 +16,7 @@ from maze_function import PathFinder
 from maze_function import PATHFINDING, STARTING, ARRIVAL, WALL, PATH
 
 # disable menu bar in matplotlib window
-# matplotlib.rcParams['toolbar'] = 'None'
+matplotlib.rcParams['toolbar'] = 'None'
 
 # color configuration
 PAD: float = 0.5
