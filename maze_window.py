@@ -1,6 +1,8 @@
 """
 Create the window that show the maze and the pathfinder in action
 """
+import sys
+
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import matplotlib
@@ -14,6 +16,9 @@ import os
 from maze_function import Maze
 from maze_function import PathFinder
 from maze_function import PATHFINDING, STARTING, ARRIVAL, WALL, PATH
+
+# for better animations 
+matplotlib.use('TkAgg')
 
 # disable menu bar in matplotlib window
 matplotlib.rcParams['toolbar'] = 'None'
@@ -161,7 +166,8 @@ class MazeWindow:
         """
         # instant explore
         # this condition if also called when Instant path ent path search are false (for a fastest exploration)
-        if (self.explore and self.INSTANT_PATH) or (self.explore and not self.INSTANT_PATH and not self.PATH_SEARCH):
+        if (self.explore and self.INSTANT_PATH) or (
+                self.explore and not self.INSTANT_PATH and not self.PATH_SEARCH and self.BEST_PATH):
             # set exploration to false to prevent second call of the function
             self.explore = False
 
@@ -189,7 +195,7 @@ class MazeWindow:
             self.mat.set_norm(n)
 
             # show the best path
-            if self.BEST_PATH and self.PATH_SEARCH:
+            if (self.BEST_PATH and self.PATH_SEARCH) or (self.BEST_PATH and not self.PATH_SEARCH and self.INSTANT_PATH):
                 # create the generator that will return step by step the best path
                 best_path = self.PATH_FINDER.show_path(final_maze,
                                                        self.arrival_point_x,
@@ -207,7 +213,7 @@ class MazeWindow:
 
                         self.mat.set_data(self.explore_enable(new_maze))
 
-            #  Instant path ent path search are false (for a fastest exploration)
+            #  Instant path and path search are false (for a fastest exploration)
             else:
                 # stop explore
                 self.explore = False
@@ -250,7 +256,10 @@ class MazeWindow:
             self.step += 1
 
         # animation that show the best path after exploration
-        elif not self.explore and not self.INSTANT_PATH and self.animation_finished:
+        elif (not self.explore and not self.INSTANT_PATH and self.animation_finished and self.BEST_PATH) or (
+                not self.explore and not self.INSTANT_PATH and not self.PATH_SEARCH and self.BEST_PATH and
+                self.animation_finished):
+
             # get steps for best path visualisation
             best_path = next(self.best_path)
             # if it is the end of the best path visualisation
@@ -340,8 +349,18 @@ if __name__ == '__main__':
 
         os.remove("conf.pkl")
     else:
-        conf = (25, 25, 25, False, True, True)
+        conf = (25, 25, 25, False, True, False)
 
+    # if the user do not choose a possible visualisation
+    if not conf[3] and not conf[4] and not conf[5]:
+        print("You must create a possible configuration No animation No path and No exploration is not allowed.")
+        sys.exit(0)
+
+    if conf[3] and not conf[4] and not conf[5]:
+        print("You must create a possible configuration animation but No path and No exploration is not allowed.")
+        sys.exit(0)
+
+    # start the window
     M = MazeWindow()
     M.main(
         conf[0], conf[1], conf[2], conf[3], conf[4], conf[5]

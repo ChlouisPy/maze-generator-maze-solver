@@ -13,6 +13,8 @@ import random
 import pickle
 import os
 
+import maze_window
+
 
 class StartGenerate:
     def setup_gui(self, START_GENERATE) -> None:
@@ -202,7 +204,7 @@ class StartGenerate:
 
         os_name = os.name
         if os_name == "nt":
-            os.system("start python maze_window.py")
+            os.system("python maze_window.py")
         else:
             os.system("python3 maze_window.py")
 
